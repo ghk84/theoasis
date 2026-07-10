@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Oasis — Luxury Villa in Nidri, Lefkada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Syncopate', 'sans-serif'],
+                        body: ['Manrope', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --c-bg: #E8F1F8;
+            --c-bg-dark: #D4E1ED;
+            --c-text: #1a2a3d;
+            --c-text-muted: rgba(26,42,61,0.5);
+            --c-text-light: rgba(26,42,61,0.35);
+            --c-border: rgba(26,42,61,0.1);
+            --c-border-light: rgba(26,42,61,0.06);
+            --c-red: #c41e1e;
+            --c-red-hover: #a81818;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html {
+            font-family: 'Manrope', sans-serif;
+            background: var(--c-bg);
+            color: var(--c-text);
+            scroll-behavior: auto !important;
+        }
+        body { overflow-x: hidden; }
+
+        .loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--c-bg);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 24px;
+        }
+        .loader-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 14px; font-weight: 700;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            color: var(--c-text);
+        }
+        .loader-bar-track {
+            width: 200px; height: 1px;
+            background: var(--c-border);
+            position: relative; overflow: hidden;
+        }
+        .loader-bar {
+            position: absolute; left: 0; top: 0;
+            height: 100%; width: 0%; background: var(--c-text);
+        }
+
+        .noise-overlay {
+            position: fixed; inset: 0; z-index: 9000;
+            opacity: 0.025; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        .wrapper {
+            position: relative; z-index: 20;
+            background: var(--c-bg);
+            margin-bottom: 100vh;
+            box-shadow: 0 50px 100px rgba(0,30,60,0.08);
+        }
+
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 50; padding: 24px;
+            transition: padding 0.3s ease, background 0.4s ease;
+        }
+        @media (min-width: 1024px) { .nav { padding: 32px 48px; } }
+        .nav.scrolled {
+            background: rgba(232,241,248,0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 1px 0 var(--c-border);
+        }
+        .nav-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            max-width: 1600px; margin: 0 auto;
+        }
+        .nav-link {
+            font-size: 11px; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.2em;
+            text-decoration: none; color: var(--c-text);
+            transition: color 300ms ease; cursor: pointer;
+        }
+        .nav-link:hover { color: var(--c-text-muted); }
+        .nav-link-red { color: var(--c-red) !important; }
+        .nav-link-red:hover { color: var(--c-red-hover) !important; }
+
+        .hero {
+            height: 100vh; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .hero-img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            filter: brightness(0.75) saturate(1.1);
+            transform: scale(1.1);
+        }
+        .hero-content { position: relative; z-index: 2; text-align: center; }
+        .hero-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 13vw; font-weight: 700;
+            line-height: 0.85; letter-spacing: -0.05em;
+            color: #fff; text-shadow: 0 4px 40px rgba(0,0,0,0.4);
+        }
+        .hero-title .line { overflow: hidden; display: block; }
+        .hero-title .line span { display: inline-block; transform: translateY(100%); }
+        .hero-sub {
+            margin-top: 24px; font-size: 11px; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.3em;
+            opacity: 0; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        .hero-scroll {
+            position: absolute; bottom: 40px; left: 50%;
+            transform: translateX(-50%); z-index: 2;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 8px; opacity: 0; color: #fff;
+        }
+        .hero-scroll span {
+            font-size: 10px; text-transform: uppercase;
+            letter-spacing: 0.3em; font-weight: 500;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        .scroll-line {
+            width: 1px; height: 60px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        .section-label {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.3em;
+            color: var(--c-text-light); margin-bottom: 16px;
+        }
+        .section-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 36px; font-weight: 700;
+            line-height: 1.1; letter-spacing: -0.04em;
+            color: var(--c-text);
+        }
+        @media (min-width: 768px) { .section-title { font-size: 48px; } }
+        @media (min-width: 1024px) { .section-title { font-size: 60px; } }
+
+        .intro-section { padding: 120px 24px; }
+        @media (min-width: 1024px) { .intro-section { padding: 180px 48px; } }
+
+        .img-reveal { overflow: hidden; position: relative; }
+        .img-reveal img {
+            width: 100%; height: 100%;
+            object-fit: cover; transform: scale(1.5);
+        }
+        .img-reveal .img-overlay {
+            position: absolute; inset: 0;
+            background: var(--c-bg); transform-origin: left;
+        }
+
+        .stat-number {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 48px; font-weight: 700; line-height: 1;
+            color: var(--c-text);
+        }
+        @media (min-width: 768px) { .stat-number { font-size: 60px; } }
+
+        .amenity-card {
+            border-bottom: 1px solid var(--c-border);
+            padding: 32px 0; display: flex; align-items: center; gap: 20px;
+            transition: padding-left 0.5s var(--easing); cursor: default;
+        }
+        .amenity-card:hover { padding-left: 24px; }
+        .amenity-icon {
+            width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--c-border);
+            border-radius: 50%; flex-shrink: 0;
+            font-size: 16px; color: var(--c-red);
+            background: rgba(196,30,30,0.04);
+        }
+
+        .masonry-grid { column-count: 1; column-gap: 8px; }
+        @media (min-width: 640px) { .masonry-grid { column-count: 2; } }
+        @media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+        @media (min-width: 1400px) { .masonry-grid { column-count: 4; } }
+        .masonry-item { break-inside: avoid; margin-bottom: 8px; overflow: hidden; position: relative; cursor: pointer; border-radius: 4px; }
+        .masonry-item img { width: 100%; display: block; transition: transform 1.5s var(--easing), filter 0.5s ease; }
+        .masonry-item:hover img { transform: scale(1.05); filter: brightness(0.75); }
+        .masonry-item .masonry-overlay { position: absolute; inset: 0; background: transparent; transition: background 0.5s ease; display: flex; align-items: center; justify-content: center; opacity: 0; }
+        .masonry-item:hover .masonry-overlay { background: rgba(0,0,0,0.2); opacity: 1; }
+        .masonry-item .masonry-icon { width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; transform: scale(0.8); transition: transform 0.4s var(--easing); }
+        .masonry-item:hover .masonry-icon { transform: scale(1); }
+
+        .gallery-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+        .filter-btn { padding: 8px 20px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; background: transparent; color: var(--c-text-light); border: 1px solid var(--c-border); border-radius: 100px; cursor: pointer; transition: all 0.3s ease; font-family: 'Manrope', sans-serif; }
+        .filter-btn:hover { color: var(--c-text); border-color: var(--c-text-muted); }
+        .filter-btn.active { background: var(--c-text); color: var(--c-bg); border-color: var(--c-text); }
+
+        .lightbox { position: fixed; inset: 0; z-index: 8000; background: rgba(10,15,20,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; cursor: zoom-out; }
+        .lightbox.active { opacity: 1; pointer-events: all; }
+        .lightbox img { max-width: 90vw; max-height: 85vh; object-fit: contain; transform: scale(0.9); transition: transform 0.5s var(--easing); }
+        .lightbox.active img { transform: scale(1); }
+        .lightbox-close { position: absolute; top: 24px; right: 24px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; cursor: pointer; color: white; font-size: 18px; transition: all 0.3s ease; background: transparent; }
+        .lightbox-close:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; cursor: pointer; color: white; font-size: 16px; transition: all 0.3s ease; background: rgba(0,0,0,0.3); }
+        .lightbox-nav:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        .lightbox-prev { left: 24px; }
+        .lightbox-next { right: 24px; }
+        .lightbox-counter { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); font-size: 11px; letter-spacing: 0.2em; font-weight: 500; color: rgba(255,255,255,0.4); }
+
+        /* ===== LOCATION — DARK OVERLAY FOR WHITE TEXT ===== */
+        .location-section { position: relative; min-height: 90vh; }
+        .location-map {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            filter: grayscale(0.5) contrast(1.1) saturate(0.8); opacity: 0.5;
+        }
+        .location-overlay {
+            position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(
+                135deg,
+                rgba(10,15,25,0.82) 0%,
+                rgba(15,25,40,0.75) 40%,
+                rgba(20,30,50,0.7) 100%
+            );
+        }
+        .location-content {
+            position: relative; z-index: 2;
+            padding: 140px 24px;
+        }
+        @media (min-width: 1024px) { .location-content { padding: 180px 48px; } }
+        .loc-label {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.3em;
+            color: rgba(255,255,255,0.5); margin-bottom: 16px;
+        }
+        .loc-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 36px; font-weight: 700;
+            line-height: 1.1; letter-spacing: -0.04em;
+            color: #fff; margin-bottom: 32px;
+        }
+        @media (min-width: 768px) { .loc-title { font-size: 48px; } }
+        @media (min-width: 1024px) { .loc-title { font-size: 60px; } }
+        .loc-desc {
+            font-size: 20px; line-height: 1.7;
+            color: rgba(255,255,255,0.8);
+        }
+        @media (min-width: 768px) { .loc-desc { font-size: 22px; } }
+        .loc-item {
+            display: flex; align-items: flex-start; gap: 20px;
+            padding: 24px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .loc-item:last-child { border-bottom: none; }
+        .loc-icon {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px; color: var(--c-red);
+            background: rgba(255,255,255,0.05);
+        }
+        .loc-item-title {
+            font-size: 17px; font-weight: 600; color: #fff;
+            margin-bottom: 6px;
+        }
+        @media (min-width: 768px) { .loc-item-title { font-size: 19px; } }
+        .loc-item-desc {
+            font-size: 15px; line-height: 1.6;
+            color: rgba(255,255,255,0.55);
+        }
+        @media (min-width: 768px) { .loc-item-desc { font-size: 16px; } }
+
+        .cta-btn { display: inline-flex; align-items: center; gap: 12px; padding: 18px 36px; background: var(--c-red); color: white; font-family: 'Syncopate', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; text-decoration: none; border: none; cursor: pointer; position: relative; overflow: hidden; transition: transform 0.4s var(--easing), box-shadow 0.4s ease; }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(196,30,30,0.3); }
+        .cta-btn .btn-bg { position: absolute; inset: 0; background: var(--c-red-hover); transform: translateY(100%); transition: transform 0.5s var(--easing); }
+        .cta-btn:hover .btn-bg { transform: translateY(0); }
+        .cta-btn span, .cta-btn i { position: relative; z-index: 1; }
+
+        .cta-btn-outline { display: inline-flex; align-items: center; gap: 12px; padding: 18px 36px; background: transparent; color: var(--c-text); font-family: 'Syncopate', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; text-decoration: none; border: 1px solid var(--c-border); cursor: pointer; transition: all 0.4s var(--easing); }
+        .cta-btn-outline:hover { border-color: var(--c-text); background: rgba(26,42,61,0.04); }
+
+        .booking-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(232,241,248,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--c-border); padding: 16px 24px; transform: translateY(100%); transition: transform 0.5s var(--easing); }
+        .booking-bar.visible { transform: translateY(0); }
+        @media (min-width: 1024px) { .booking-bar { padding: 16px 48px; } }
+
+        .footer-sticky { position: fixed; bottom: 0; left: 0; right: 0; height: 100vh; z-index: 1; background: var(--c-bg-dark); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .footer-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.06; filter: grayscale(0.5); }
+        .footer-gradient { position: absolute; inset: 0; background: linear-gradient(to top, var(--c-bg-dark) 0%, transparent 100%); }
+        .footer-cta-text { font-family: 'Syncopate', sans-serif; font-size: 10vw; font-weight: 700; line-height: 0.85; letter-spacing: -0.04em; text-align: center; position: relative; z-index: 2; }
+        .footer-cta-text a { text-decoration: none; color: var(--c-text); display: inline-block; transition: color 0.4s ease; }
+        .footer-cta-text a:hover { color: var(--c-red); }
+        .footer-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 2; border-top: 1px solid var(--c-border); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
+        @media (min-width: 1024px) { .footer-bottom { padding: 24px 48px; } }
+        .footer-bottom a { color: var(--c-text-light); text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; transition: color 0.3s ease; }
+        .footer-bottom a:hover { color: var(--c-text); }
+
+        .deco-line { width: 1px; height: 120px; background: linear-gradient(to bottom, transparent, var(--c-border), transparent); margin: 0 auto; }
+        .word-reveal .word-wrap { overflow: hidden; display: inline-block; vertical-align: bottom; }
+        .word-reveal .word-inner { display: inline-block; transform: translateY(120%); }
+
+        .mobile-menu { position: fixed; inset: 0; z-index: 9998; background: var(--c-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .mobile-menu.open { opacity: 1; pointer-events: all; }
+        .mobile-menu a { font-family: 'Syncopate', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase; color: var(--c-text); text-decoration: none; letter-spacing: 0.05em; transition: color 0.3s ease; display: block; padding: 12px 32px; }
+        .mobile-menu a:hover { color: var(--c-red); }
+
+        .menu-toggle { display: flex; flex-direction: column; gap: 6px; cursor: pointer; background: none; border: none; padding: 8px; z-index: 9999; }
+        .menu-toggle span { display: block; width: 24px; height: 1px; background: var(--c-text); transition: all 0.3s ease; }
+        .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; }
+        .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+        @media (min-width: 1024px) { .menu-toggle { display: none; } }
+        .desktop-nav { display: none; }
+        @media (min-width: 1024px) { .desktop-nav { display: flex; } }
+    </style>
+</head>
+<body>
+
+    <div class="loader" id="loader">
+        <div class="loader-text">The Oasis</div>
+        <div class="loader-bar-track"><div class="loader-bar"></div></div>
+    </div>
+
+    <div class="noise-overlay"></div>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev"><i class="fas fa-chevron-left"></i></button>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext"><i class="fas fa-chevron-right"></i></button>
+        <img src="" alt="Gallery" id="lightboxImg">
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="javascript:void(0)" data-scroll="about">About</a>
+        <a href="javascript:void(0)" data-scroll="amenities">Amenities</a>
+        <a href="javascript:void(0)" data-scroll="gallery">Gallery</a>
+        <a href="javascript:void(0)" data-scroll="location">Location</a>
+        <a href="https://www.booking.com/hotel/gr/the-oasis-luxury-villa-in-nidri.el.html" target="_blank" rel="noopener" style="color:var(--c-red);">Book Now</a>
+    </div>
+
+    <nav class="nav" id="mainNav">
+        <div class="nav-inner">
+            <a href="javascript:void(0)" data-scroll="top" class="font-display text-sm font-bold tracking-wider" style="text-decoration:none;color:var(--c-text);">THE OASIS</a>
+            <div class="desktop-nav items-center gap-10">
+                <a href="javascript:void(0)" data-scroll="about" class="nav-link">About</a>
+                <a href="javascript:void(0)" data-scroll="amenities" class="nav-link">Amenities</a>
+                <a href="javascript:void(0)" data-scroll="gallery" class="nav-link">Gallery</a>
+                <a href="javascript:void(0)" data-scroll="location" class="nav-link">Location</a>
+                <a href="https://www.booking.com/hotel/gr/the-oasis-luxury-villa-in-nidri.el.html" target="_blank" rel="noopener" class="nav-link nav-link-red">Book Now</a>
+            </div>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="booking-bar" id="bookingBar">
+        <div class="flex items-center justify-between max-w-[1600px] mx-auto flex-wrap gap-4">
+            <div>
+                <div class="text-xs uppercase tracking-widest font-semibold" style="color:var(--c-text-light);">From</div>
+                <div class="font-display text-lg font-bold" style="color:var(--c-text);">€800 <span class="text-xs font-body font-normal" style="color:var(--c-text-light);">/ night</span></div>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-xs uppercase tracking-widest" style="color:var(--c-text-light);">
+                <span><i class="fas fa-bed mr-2"></i>3 Bedrooms</span>
+                <span><i class="fas fa-bath mr-2"></i>3 Bathrooms</span>
+                <span><i class="fas fa-users mr-2"></i>Up to 8 Guests</span>
+            </div>
+            <a href="https://www.booking.com/hotel/gr/the-oasis-luxury-villa-in-nidri.el.html" target="_blank" rel="noopener" class="cta-btn" style="padding:12px 24px;font-size:10px;">
+                <span class="btn-bg"></span>
+                <span>Book on Booking.com</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="wrapper" id="top">
+
+        <section class="hero" id="hero">
+            <img class="hero-img" src="https://i.ibb.co/Y7GbYrSR/708033668.jpg" alt="The Oasis Villa">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="line"><span>THE</span></span>
+                    <span class="line"><span>OASIS</span></span>
+                </h1>
+                <p class="hero-sub">Luxury Villa — Nidri, Lefkada</p>
+            </div>
+            <div class="hero-scroll">
+                <span>Scroll</span>
+                <div class="scroll-line"></div>
+            </div>
+        </section>
+
+        <section class="intro-section" id="about">
+            <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div class="lg:col-span-7">
+                    <div class="section-label">About the Villa</div>
+                    <h2 class="section-title word-reveal">Where the Ionian Sea Meets Absolute Serenity</h2>
+                </div>
+                <div class="lg:col-span-5 flex flex-col justify-end">
+                    <p class="text-lg leading-relaxed" style="color:var(--c-text-muted);">Nestled among olive groves overlooking the shimmering waters of the Ionian Sea, The Oasis is a newly built luxury villa that redefines island living. Every detail has been crafted with intention — from the infinity pool that merges with the horizon to the hand-selected marble and natural stone that ground the home in its Grecian setting.</p>
+                    <p class="text-lg leading-relaxed mt-6" style="color:var(--c-text-muted);">Just minutes from the vibrant village of Nidri and the legendary beaches of Lefkada, this is your private sanctuary.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-6 lg:px-12 pb-24">
+            <div class="max-w-[1600px] mx-auto">
+                <div class="img-reveal" style="height:70vh;">
+                    <div class="img-overlay"></div>
+                    <img src="https://i.ibb.co/Kz2C6zR7/818785199.jpg" alt="Villa pool and sea view">
+                </div>
+            </div>
+        </section>
+
+        <section class="px-6 lg:px-12 py-24">
+            <div class="max-w-[1600px] mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center"><div class="stat-number" data-count="3">0</div><div class="text-xs uppercase tracking-widest mt-3" style="color:var(--c-text-light);">Bedrooms</div></div>
+                <div class="text-center"><div class="stat-number" data-count="3">0</div><div class="text-xs uppercase tracking-widest mt-3" style="color:var(--c-text-light);">Bathrooms</div></div>
+                <div class="text-center"><div class="stat-number" data-count="8">0</div><div class="text-xs uppercase tracking-widest mt-3" style="color:var(--c-text-light);">Max Guests</div></div>
+                <div class="text-center"><div class="stat-number" data-count="200">0</div><div class="text-xs uppercase tracking-widest mt-3" style="color:var(--c-text-light);">Sqm Area</div></div>
+            </div>
+        </section>
+
+        <div class="deco-line"></div>
+
+        <section class="px-6 lg:px-12 py-24">
+            <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="img-reveal" style="height:60vh;"><div class="img-overlay"></div><img src="https://i.ibb.co/xnTjvWr/818792863.jpg" alt="Villa interior"></div>
+                <div class="img-reveal" style="height:60vh;"><div class="img-overlay"></div><img src="https://i.ibb.co/1YRH4xSt/818785506.jpg" alt="Villa exterior"></div>
+            </div>
+        </section>
+
+        <section class="px-6 lg:px-12 py-24" id="amenities">
+            <div class="max-w-[1600px] mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+                    <div class="lg:col-span-5">
+                        <div class="section-label">Amenities</div>
+                        <h2 class="section-title">Everything You Need, Nothing You Don't</h2>
+                    </div>
+                    <div class="lg:col-span-4 lg:col-start-8 flex items-end">
+                        <p class="text-base leading-relaxed" style="color:var(--c-text-muted);">Designed for those who appreciate the finer details. Each amenity has been chosen to elevate your stay from a holiday to an experience.</p>
+                    </div>
+                </div>
+                <div class="border-t" style="border-color:var(--c-border);">
+                    <div class="grid grid-cols-1 md:grid-cols-2">
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-water"></i></div><div><div class="font-semibold text-sm">Infinity Pool</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Heated, with panoramic sea views</div></div></div>
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-wifi"></i></div><div><div class="font-semibold text-sm">High-Speed WiFi</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Fiber optic, 200Mbps throughout</div></div></div>
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-car"></i></div><div><div class="font-semibold text-sm">Private Parking</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Secure gated parking for 2 vehicles</div></div></div>
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-snowflake"></i></div><div><div class="font-semibold text-sm">Climate Control</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Full A/C and underfloor heating</div></div></div>
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-utensils"></i></div><div><div class="font-semibold text-sm">Gourmet Kitchen</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Fully equipped with Miele appliances</div></div></div>
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-tv"></i></div><div><div class="font-semibold text-sm">Smart Entertainment</div><div class="text-xs mt-1" style="color:var(--c-text-light);">75" OLED TV, Netflix, Sonos surround</div></div></div>
+                        <div class="amenity-card"><div class="amenity-icon"><i class="fas fa-hot-tub-person"></i></div><div><div class="font-semibold text-sm">Outdoor Jacuzzi</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Heated jacuzzi with sunset views</div></div></div>
+                        <div class="amenity-card" style="border-bottom:none;"><div class="amenity-icon"><i class="fas fa-fire-burner"></i></div><div><div class="font-semibold text-sm">BBQ & Alfresco Dining</div><div class="text-xs mt-1" style="color:var(--c-text-light);">Built-in grill, outdoor dining for 8</div></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="deco-line"></div>
+
+        <section class="px-6 lg:px-12 py-24" id="gallery">
+            <div class="max-w-[1600px] mx-auto">
+                <div class="mb-6">
+                    <div class="section-label">Gallery</div>
+                    <h2 class="section-title">Every Angle, Every Detail</h2>
+                </div>
+                <p class="text-base mb-10 max-w-2xl" style="color:var(--c-text-muted);">32 photos showcasing the villa from sunrise to sunset — interiors, exteriors, pool, sea views, and every room.</p>
+                <div class="gallery-filters" id="galleryFilters">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="exterior">Exterior</button>
+                    <button class="filter-btn" data-filter="interior">Interior</button>
+                    <button class="filter-btn" data-filter="pool">Pool & Sea</button>
+                    <button class="filter-btn" data-filter="rooms">Rooms</button>
+                </div>
+                <div class="masonry-grid" id="masonryGrid">
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(0)"><img src="https://i.ibb.co/xnTjvWr/818792863.jpg" alt="Interior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(1)"><img src="https://i.ibb.co/8n2nKYDP/818792899.jpg" alt="Interior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(2)"><img src="https://i.ibb.co/20GnKvQX/818785526.jpg" alt="Exterior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(3)"><img src="https://i.ibb.co/ZRWhCGn2/818785531.jpg" alt="Exterior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="pool" onclick="openLightbox(4)"><img src="https://i.ibb.co/1YRH4xSt/818785506.jpg" alt="Pool" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(5)"><img src="https://i.ibb.co/Z6KjdCTb/818785501.jpg" alt="Interior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(6)"><img src="https://i.ibb.co/Jwz7xrDB/818785498.jpg" alt="Bedroom" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(7)"><img src="https://i.ibb.co/Q7YnsV7L/818785497.jpg" alt="Bedroom" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(8)"><img src="https://i.ibb.co/TqhsqYyC/818785490.jpg" alt="Room" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(9)"><img src="https://i.ibb.co/Q3Vpgk83/818785486.jpg" alt="Room" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(10)"><img src="https://i.ibb.co/nMtmgDBQ/818785478.jpg" alt="Interior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(11)"><img src="https://i.ibb.co/HTrnL3W3/818785405.jpg" alt="Exterior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(12)"><img src="https://i.ibb.co/p6VbgkCL/818785395.jpg" alt="Exterior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(13)"><img src="https://i.ibb.co/fzbWhSBM/818785360.jpg" alt="Exterior" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="pool" onclick="openLightbox(14)"><img src="https://i.ibb.co/h5x8Zbz/818785346.jpg" alt="Pool" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="pool" onclick="openLightbox(15)"><img src="https://i.ibb.co/LXNs3LM5/818785341.jpg" alt="Sea view" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(16)"><img src="https://i.ibb.co/7dkpZmdv/818785291.jpg" alt="Entrance" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="pool" onclick="openLightbox(17)"><img src="https://i.ibb.co/zhnRDKpw/818785285.jpg" alt="Infinity pool" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="pool" onclick="openLightbox(18)"><img src="https://i.ibb.co/Kz2C6zR7/818785199.jpg" alt="Pool panorama" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="exterior" onclick="openLightbox(19)"><img src="https://i.ibb.co/SXqHyNQf/820876287.jpg" alt="Dusk" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(20)"><img src="https://i.ibb.co/hxfBshdk/818805260.jpg" alt="Suite" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(21)"><img src="https://i.ibb.co/Q7wNzp6R/818804992.jpg" alt="Bedroom" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(22)"><img src="https://i.ibb.co/zH4yMmwS/818794258.jpg" alt="Room" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(23)"><img src="https://i.ibb.co/Jjn4h5Lg/818794235.jpg" alt="Bathroom" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="rooms" onclick="openLightbox(24)"><img src="https://i.ibb.co/5xFMdzgn/818794176.jpg" alt="Bathroom" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(25)"><img src="https://i.ibb.co/fdFL32YW/818794159.jpg" alt="Living" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(26)"><img src="https://i.ibb.co/FLkF5sP7/818793039.jpg" alt="Living area" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(27)"><img src="https://i.ibb.co/5WvRhtjw/818793035.jpg" alt="Kitchen" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(28)"><img src="https://i.ibb.co/9kFS1nPw/818792986.jpg" alt="Detail" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(29)"><img src="https://i.ibb.co/2719JfC1/818792946.jpg" alt="Lounge" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(30)"><img src="https://i.ibb.co/vCsD9Cmg/818792912.jpg" alt="Seating" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                    <div class="masonry-item" data-category="interior" onclick="openLightbox(31)"><img src="https://i.ibb.co/MkVBLjpt/818792915.jpg" alt="Corner" loading="lazy"><div class="masonry-overlay"><div class="masonry-icon"><i class="fas fa-expand"></i></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== LOCATION — DARK OVERLAY + WHITE TEXT ===== -->
+        <section class="location-section" id="location">
+            <iframe class="location-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31243.96!2d20.7083!3d38.6833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x135d94e3d0e5c7a7%3A0x6e2f3f1c3b2a4d5e!2sNidri%2C%20Lefkada!5e0!3m2!1sen!2sgr!4v1700000000000" allowfullscreen="" loading="lazy"></iframe>
+            <div class="location-overlay"></div>
+            <div class="location-content max-w-[1600px] mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div>
+                        <div class="loc-label">Location</div>
+                        <h2 class="loc-title">Nidri, Lefkada</h2>
+                        <p class="loc-desc">Perched on the eastern coast of Lefkada, Nidri is the island's most beloved resort town — yet The Oasis remains tucked away in a quiet hillside position, offering complete privacy while keeping everything within easy reach.</p>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <div class="loc-item">
+                            <div class="loc-icon"><i class="fas fa-umbrella-beach"></i></div>
+                            <div>
+                                <div class="loc-item-title">Nidri Beach</div>
+                                <div class="loc-item-desc">5 min drive — sandy beach with water sports</div>
+                            </div>
+                        </div>
+                        <div class="loc-item">
+                            <div class="loc-icon"><i class="fas fa-mountain"></i></div>
+                            <div>
+                                <div class="loc-item-title">Nydri Waterfalls</div>
+                                <div class="loc-item-desc">10 min drive — lush natural waterfall hike</div>
+                            </div>
+                        </div>
+                        <div class="loc-item">
+                            <div class="loc-icon"><i class="fas fa-anchor"></i></div>
+                            <div>
+                                <div class="loc-item-title">Nidri Marina</div>
+                                <div class="loc-item-desc">7 min drive — boat rentals, day trips to Meganisi</div>
+                            </div>
+                        </div>
+                        <div class="loc-item">
+                            <div class="loc-icon"><i class="fas fa-plane"></i></div>
+                            <div>
+                                <div class="loc-item-title">Aktion Airport (Preveza)</div>
+                                <div class="loc-item-desc">35 min drive — connected via floating bridge</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-6 lg:px-12 py-32">
+            <div class="max-w-[1600px] mx-auto text-center">
+                <div class="section-label">Your Escape Awaits</div>
+                <h2 class="section-title mb-8">Ready to Experience<br>The Oasis?</h2>
+                <p class="text-lg mb-12 max-w-xl mx-auto" style="color:var(--c-text-muted);">Availability is limited. Secure your dates and let the Ionian Sea work its magic.</p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <a href="https://www.booking.com/hotel/gr/the-oasis-luxury-villa-in-nidri.el.html" target="_blank" rel="noopener" class="cta-btn"><span class="btn-bg"></span><span>Book on Booking.com</span><i class="fas fa-arrow-right"></i></a>
+                    <a href="https://wa.me/306900000000" target="_blank" rel="noopener" class="cta-btn-outline"><i class="fab fa-whatsapp"></i><span>WhatsApp Us</span></a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer-sticky">
+        <img class="footer-bg" src="https://i.ibb.co/RGq9LT68/818785307.jpg" alt="The Oasis Villa">
+        <div class="footer-gradient"></div>
+        <div class="footer-cta-text"><a href="https://www.booking.com/hotel/gr/the-oasis-luxury-villa-in-nidri.el.html" target="_blank" rel="noopener">BOOK<br>YOUR STAY</a></div>
+        <div class="footer-bottom">
+            <span class="text-xs" style="color:var(--c-text-light);">© 2025 The Oasis Villa. All rights reserved.</span>
+            <div class="flex items-center gap-6">
+                <a href="javascript:void(0)" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="javascript:void(0)" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="javascript:void(0)" aria-label="Airbnb"><i class="fab fa-airbnb"></i></a>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="javascript:void(0)" data-scroll="about">About</a>
+                <a href="javascript:void(0)" data-scroll="amenities">Amenities</a>
+                <a href="javascript:void(0)" data-scroll="gallery">Gallery</a>
+                <a href="javascript:void(0)" data-scroll="location">Location</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <script>
+    (function() {
+        'use strict';
+        var galleryImages = ['https://i.ibb.co/xnTjvWr/818792863.jpg','https://i.ibb.co/8n2nKYDP/818792899.jpg','https://i.ibb.co/20GnKvQX/818785526.jpg','https://i.ibb.co/ZRWhCGn2/818785531.jpg','https://i.ibb.co/1YRH4xSt/818785506.jpg','https://i.ibb.co/Z6KjdCTb/818785501.jpg','https://i.ibb.co/Jwz7xrDB/818785498.jpg','https://i.ibb.co/Q7YnsV7L/818785497.jpg','https://i.ibb.co/TqhsqYyC/818785490.jpg','https://i.ibb.co/Q3Vpgk83/818785486.jpg','https://i.ibb.co/nMtmgDBQ/818785478.jpg','https://i.ibb.co/HTrnL3W3/818785405.jpg','https://i.ibb.co/p6VbgkCL/818785395.jpg','https://i.ibb.co/fzbWhSBM/818785360.jpg','https://i.ibb.co/h5x8Zbz/818785346.jpg','https://i.ibb.co/LXNs3LM5/818785341.jpg','https://i.ibb.co/7dkpZmdv/818785291.jpg','https://i.ibb.co/zhnRDKpw/818785285.jpg','https://i.ibb.co/Kz2C6zR7/818785199.jpg','https://i.ibb.co/SXqHyNQf/820876287.jpg','https://i.ibb.co/hxfBshdk/818805260.jpg','https://i.ibb.co/Q7wNzp6R/818804992.jpg','https://i.ibb.co/zH4yMmwS/818794258.jpg','https://i.ibb.co/Jjn4h5Lg/818794235.jpg','https://i.ibb.co/5xFMdzgn/818794176.jpg','https://i.ibb.co/fdFL32YW/818794159.jpg','https://i.ibb.co/FLkF5sP7/818793039.jpg','https://i.ibb.co/5WvRhtjw/818793035.jpg','https://i.ibb.co/9kFS1nPw/818792986.jpg','https://i.ibb.co/2719JfC1/818792946.jpg','https://i.ibb.co/vCsD9Cmg/818792912.jpg','https://i.ibb.co/MkVBLjpt/818792915.jpg'];
+        var currentLightboxIndex = 0;
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true, smoothTouch: false });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+        function smoothScrollTo(target, offset) { offset = offset || 80; if (!target) return; const y = target.getBoundingClientRect().top + lenis.scroll - offset; lenis.scrollTo(y, { duration: 1.4, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) }); }
+        document.addEventListener('click', function(e) { const link = e.target.closest('[data-scroll]'); if (!link) return; e.preventDefault(); e.stopImmediatePropagation(); const targetId = link.getAttribute('data-scroll'); if (targetId === 'top') { if (mobileMenuOpen) closeMobileMenu(); lenis.scrollTo(0, { duration: 1.4 }); return; } const target = document.getElementById(targetId); if (!target) return; if (mobileMenuOpen) { closeMobileMenu(); setTimeout(function() { smoothScrollTo(target); }, 180); } else { smoothScrollTo(target); } }, true);
+        var mobileMenuOpen = false;
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        menuToggle.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); mobileMenuOpen = !mobileMenuOpen; menuToggle.classList.toggle('active', mobileMenuOpen); mobileMenu.classList.toggle('open', mobileMenuOpen); if (mobileMenuOpen) lenis.stop(); else lenis.start(); });
+        function closeMobileMenu() { mobileMenuOpen = false; menuToggle.classList.remove('active'); mobileMenu.classList.remove('open'); lenis.start(); }
+        const mainNav = document.getElementById('mainNav');
+        lenis.on('scroll', function() { mainNav.classList.toggle('scrolled', lenis.scroll > 100); });
+        var filterBtns = document.querySelectorAll('.filter-btn');
+        var masonryItems = document.querySelectorAll('.masonry-item');
+        filterBtns.forEach(function(btn) { btn.addEventListener('click', function() { filterBtns.forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active'); var filter = btn.getAttribute('data-filter'); masonryItems.forEach(function(item) { if (filter === 'all' || item.getAttribute('data-category') === filter) { item.style.display = ''; gsap.fromTo(item, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }); } else { gsap.to(item, { opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: function() { item.style.display = 'none'; } }); } }); }); });
+        const lightbox = document.getElementById('lightbox'); const lightboxImg = document.getElementById('lightboxImg'); const lightboxClose = document.getElementById('lightboxClose'); const lightboxPrev = document.getElementById('lightboxPrev'); const lightboxNext = document.getElementById('lightboxNext'); const lightboxCounter = document.getElementById('lightboxCounter');
+        function getVisibleIndices() { var indices = []; masonryItems.forEach(function(item, i) { if (item.style.display !== 'none') indices.push(i); }); return indices; }
+        function showLightboxImage(index) { var visible = getVisibleIndices(); if (!visible.length) return; currentLightboxIndex = index; lightboxImg.src = galleryImages[index]; lightboxCounter.textContent = (visible.indexOf(index)+1) + ' / ' + visible.length; lightboxPrev.style.display = visible.length > 1 ? '' : 'none'; lightboxNext.style.display = visible.length > 1 ? '' : 'none'; }
+        function navigateLightbox(dir) { var visible = getVisibleIndices(); if (!visible.length) return; var p = visible.indexOf(currentLightboxIndex); var n = p + dir; if (n < 0) n = visible.length - 1; if (n >= visible.length) n = 0; gsap.to(lightboxImg, { opacity: 0, x: dir*40, duration: 0.2, ease: 'power2.in', onComplete: function() { showLightboxImage(visible[n]); gsap.fromTo(lightboxImg, { opacity: 0, x: -dir*40 }, { opacity: 1, x: 0, duration: 0.3, ease: 'power2.out' }); } }); }
+        window.openLightbox = function(index) { showLightboxImage(index); lightbox.classList.add('active'); lenis.stop(); };
+        lightboxClose.addEventListener('click', function(e) { e.stopPropagation(); lightbox.classList.remove('active'); lenis.start(); });
+        lightbox.addEventListener('click', function(e) { if (e.target === lightbox || e.target === lightboxImg) { lightbox.classList.remove('active'); lenis.start(); } });
+        lightboxPrev.addEventListener('click', function(e) { e.stopPropagation(); navigateLightbox(-1); });
+        lightboxNext.addEventListener('click', function(e) { e.stopPropagation(); navigateLightbox(1); });
+        document.addEventListener('keydown', function(e) { if (!lightbox.classList.contains('active')) return; if (e.key === 'Escape') { lightbox.classList.remove('active'); lenis.start(); } if (e.key === 'ArrowLeft') navigateLightbox(-1); if (e.key === 'ArrowRight') navigateLightbox(1); });
+        const loader = document.getElementById('loader'); const loaderBar = document.querySelector('.loader-bar');
+        gsap.to(loaderBar, { width: '100%', duration: 1.2, ease: 'expo.inOut', onComplete: function() { gsap.to(loader, { yPercent: -100, duration: 1.0, ease: 'power4.inOut', onComplete: function() { loader.style.display = 'none'; initPageAnimations(); } }); } });
+        function initPageAnimations() {
+            gsap.to('.hero-title .line span', { y: '0%', stagger: 0.1, duration: 1.8, ease: 'power4.out' });
+            gsap.to('.hero-sub', { opacity: 1, duration: 1, delay: 0.8 });
+            gsap.to('.hero-scroll', { opacity: 1, duration: 1, delay: 1.2 });
+            gsap.to('.hero-img', { yPercent: 20, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+            document.querySelectorAll('.img-reveal').forEach(function(el) { var img = el.querySelector('img'); var overlay = el.querySelector('.img-overlay'); gsap.to(overlay, { scaleX: 0, duration: 1.5, ease: 'expo.inOut', scrollTrigger: { trigger: el, start: 'top 80%', toggleActions: 'play none none reverse' } }); gsap.to(img, { scale: 1, duration: 1.8, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 80%', toggleActions: 'play none none reverse' } }); });
+            document.querySelectorAll('.word-reveal').forEach(function(el) { var text = el.innerHTML; var words = text.trim().split(/\s+/); el.innerHTML = words.map(function(w) { return '<span class="word-wrap"><span class="word-inner">' + w + '</span></span> '; }).join(''); gsap.to(el.querySelectorAll('.word-inner'), { y: '0%', duration: 1.2, ease: 'power3.out', stagger: 0.02, scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' } }); });
+            document.querySelectorAll('.stat-number').forEach(function(el) { var target = parseInt(el.dataset.count); var obj = { val: 0 }; gsap.to(obj, { val: target, duration: 2, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 85%' }, onUpdate: function() { el.textContent = Math.round(obj.val); } }); });
+            gsap.from('.masonry-item', { y: 40, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.04, scrollTrigger: { trigger: '#masonryGrid', start: 'top 85%' } });
+            gsap.from('.amenity-card', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.06, scrollTrigger: { trigger: '.amenity-card', start: 'top 85%' } });
+            const bookingBar = document.getElementById('bookingBar');
+            ScrollTrigger.create({ trigger: '.hero', start: 'bottom 100px', onEnter: function() { bookingBar.classList.add('visible'); }, onLeaveBack: function() { bookingBar.classList.remove('visible'); } });
+            gsap.from('.footer-cta-text', { y: 60, opacity: 0.5, scale: 0.95, scrollTrigger: { trigger: '.footer-sticky', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+            // Location items stagger
+            gsap.from('.loc-item', { x: 40, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12, scrollTrigger: { trigger: '.location-content', start: 'top 80%' } });
+            gsap.from('.loc-desc', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: '.loc-desc', start: 'top 85%' } });
+        }
+    })();
+    </script>
+</body>
+</html>
